@@ -1,0 +1,159 @@
+@page "/register"
+@rendermode InteractiveServer
+@inject AppDbContext Db
+@inject SessionService Session
+@inject NavigationManager Nav
+
+@if (!Session.IsLoggedIn)
+{
+    <p>Redirecting to login...</p>
+}
+else
+{
+    <h3>Register for an Event</h3>
+
+    @if (participant != null)
+    {
+        <div class="alert alert-info py-2 mb-3">
+            Registering as <strong>@participant.Name</strong> (@participant.Email)
+        </div>
+    }
+
+    <div class="card p-3 shadow-sm mb-4" style="max-width:560px">
+        <h5>Choose an Event</h5>
+        @if (!upcomingEvents.Any())
+        {
+            <p class="text-muted">No upcoming events available.</p>
+        }
+        else
+        {
+            @foreach (var evt in upcomingEvents)
+            {
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio"
+                           name="eventChoice"
+                           id="evt_@evt.EventId"
+                           @onchange="() => selectedEventId = evt.EventId" />
+                    <label class="form-check-label" for="evt_@evt.EventId">
+                        <strong>@evt.Name</strong><br />
+                        <small class="text-muted">
+                            @evt.Date.ToString("dd MMM yyyy") at @evt.Time.ToString(@"hh\:mm")
+                            — @evt.Venue?.Name
+                        </small>
+                    </label>
+                </div>
+            }
+        }
+    </div>
+
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <div class="alert alert-danger">@error</div>
+    }
+    @if (!string.IsNullOrEmpty(success))
+    {
+        <div class="alert alert-success">@success</div>
+    }
+
+    <button class="btn btn-primary" @onclick="Submit" disabled="@(selectedEventId == 0)">
+        Confirm Registration
+    </button>
+    <a href="/account" class="btn btn-secondary ms-2">View My Registrations</a>
+}
+
+@code {
+    private Participant? participant;
+    private List<Event> upcomingEvents = new();
+    private int selectedEventId;
+    private string error = "", success = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!Session.IsLoggedIn)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+
+        participant = await Db.Participants.FindAsync(Session.CurrentParticipantId);
+
+        upcomingEvents = await Db.Events
+            .Include(e => e.Venue)
+            .Where(e => e.Date >= DateTime.Today)
+            .OrderBy(e => e.Date)
+            .ToListAsync();
+    }
+
+    private async Task Submit()
+    {
+        error = ""; success = "";
+
+        if (selectedEventId == 0) { error = "Please select an event."; return; }
+        if (participant == null) { error = "Session error — please log in again."; return; }
+
+        try
+        {
+            var existingReg = await Db.Registrations.FirstOrDefaultAsync(r =>
+    r.ParticipantId == participant.ParticipantId &&
+    r.EventId == selectedEventId);
+
+            if (existingReg != null)
+            {
+                if (existingReg.Status != "Cancelled")
+                {
+                    error = "You are already registered for this event.";
+                    return;
+                }
+
+                var existingEvent = await Db.Events
+    .Include(e => e.Registrations)
+    .Include(e => e.Venue)
+    .FirstOrDefaultAsync(e => e.EventId == selectedEventId);
+
+                int existingConfirmedCount = existingEvent!.Registrations
+                    .Count(r => r.Status == "Confirmed");
+
+                existingReg.Status =
+    (existingEvent.Venue != null &&
+     existingConfirmedCount >= existingEvent.Venue.Capacity)
+    ? "Waitlisted"
+    : "Confirmed";
+
+                existingReg.RegistrationDate = DateTime.Now;
+
+                await Db.SaveChangesAsync();
+
+                success = $"Re-registered for '{existingEvent.Name}' ! Status: {existingReg.Status}";
+                selectedEventId = 0;
+                return;
+            }
+
+            var eventData = await Db.Events
+                .Include(e => e.Registrations)
+                .Include(e => e.Venue)
+                .FirstOrDefaultAsync(e => e.EventId == selectedEventId);
+
+            if (eventData == null) { error = "Event not found."; return; }
+
+            int confirmedCount = eventData.Registrations.Count(r => r.Status == "Confirmed");
+            string status = (eventData.Venue != null && confirmedCount >= eventData.Venue.Capacity)
+                ? "Waitlisted" : "Confirmed";
+
+            Db.Registrations.Add(new Registration
+            {
+                ParticipantId = participant.ParticipantId,
+                EventId = selectedEventId,
+                RegistrationDate = DateTime.Now,
+                Status = status
+            });
+
+            await Db.SaveChangesAsync();
+            success = $"Successfully registered for '{eventData.Name}'! Status: {status}";
+            selectedEventId = 0;
+        }
+        catch (Exception ex)
+        {
+            error = $"Registration failed: {ex.Message}";
+        }
+    }
+}
