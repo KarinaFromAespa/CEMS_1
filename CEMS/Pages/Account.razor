@@ -151,8 +151,29 @@ else
         var reg = await Db.Registrations.FindAsync(pendingCancelId);
         if (reg != null && reg.ParticipantId == Session.CurrentParticipantId)
         {
+            bool wasConfirmed = reg.Status == "Confirmed";
+            int eventId = reg.EventId;
+
             reg.Status = "Cancelled";
             await Db.SaveChangesAsync();
+            Db.ChangeTracker.Clear();
+
+            if (wasConfirmed)
+            {
+                var nextWaitlisted = await Db.Registrations
+                    .Include(r => r.Participant)
+                    .Where(r => r.EventId == eventId && r.Status == "Waitlisted")
+                    .OrderBy(r => r.RegistrationDate)
+                    .FirstOrDefaultAsync();
+
+                if (nextWaitlisted != null)
+                {
+                    nextWaitlisted.Status = "Confirmed";
+                    await Db.SaveChangesAsync();
+                    Db.ChangeTracker.Clear();
+                }
+            }
+
             registrations = await Db.Registrations
                 .Include(r => r.Event).ThenInclude(e => e!.Venue)
                 .Where(r => r.ParticipantId == Session.CurrentParticipantId)
