@@ -113,17 +113,12 @@ else
                 int existingConfirmedCount = existingEvent!.Registrations
                     .Count(r => r.Status == "Confirmed");
 
-                existingReg.Status =
-    (existingEvent.Venue != null &&
-     existingConfirmedCount >= existingEvent.Venue.Capacity)
-    ? "Waitlisted"
-    : "Confirmed";
-
+                existingReg.Status = "Pending";
                 existingReg.RegistrationDate = DateTime.Now;
 
                 await Db.SaveChangesAsync();
 
-                success = $"Re-registered for '{existingEvent.Name}' ! Status: {existingReg.Status}";
+                success = $"Re-registered for '{existingEvent!.Name}'! Your registration is pending admin approval.";
                 selectedEventId = 0;
                 return;
             }
@@ -135,20 +130,16 @@ else
 
             if (eventData == null) { error = "Event not found."; return; }
 
-            int confirmedCount = eventData.Registrations.Count(r => r.Status == "Confirmed");
-            string status = (eventData.Venue != null && confirmedCount >= eventData.Venue.Capacity)
-                ? "Waitlisted" : "Confirmed";
-
             Db.Registrations.Add(new Registration
             {
                 ParticipantId = participant.ParticipantId,
                 EventId = selectedEventId,
                 RegistrationDate = DateTime.Now,
-                Status = status
+                Status = "Pending"
             });
 
             await Db.SaveChangesAsync();
-            success = $"Successfully registered for '{eventData.Name}'! Status: {status}";
+            success = $"Successfully registered for '{eventData.Name}'! Your registration is pending admin approval.";
             selectedEventId = 0;
         }
         catch (Exception ex)

@@ -8,6 +8,6 @@
         public int EventId { get; set; }
         public Event? Event { get; set; }
         public DateTime RegistrationDate { get; set; } = DateTime.Now;
-        public string Status { get; set; } = "Confirmed"; // Confirmed, Cancelled, Waitlisted
+        public string Status { get; set; } = "Pending"; // Pending, Confirmed, Cancelled, Waitlisted
     }
 }

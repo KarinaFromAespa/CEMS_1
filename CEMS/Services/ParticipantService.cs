@@ -57,5 +57,15 @@ namespace CEMS.Services
 
             return await query.OrderBy(p => p.Name).ToListAsync();
         }
+
+        public async Task<bool> ResetPasswordAsync(int participantId, string newPassword)
+        {
+            var participant = await _context.Participants.FindAsync(participantId);
+            if (participant == null) return false;
+
+            participant.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

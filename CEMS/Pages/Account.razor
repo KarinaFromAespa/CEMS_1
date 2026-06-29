@@ -75,7 +75,7 @@ else
                                             @if (reg.Status != "Cancelled")
                                             {
                                                 <button class="btn btn-sm btn-outline-danger"
-                                                        @onclick="() => CancelRegistration(reg.RegistrationId)">
+                                                        @onclick="() => PromptCancel(reg.RegistrationId, reg.Event?.Name)">
                                                     Cancel
                                                 </button>
                                             }
@@ -91,9 +91,35 @@ else
     </div>
 }
 
+@if (showCancelConfirm)
+{
+    <div class="modal-backdrop fade show" style="z-index:1040;"></div>
+    <div class="modal fade show d-block" style="z-index:1050;" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Cancel Registration</h5>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to cancel your registration for <strong>@cancelEventName</strong>?</p>
+                    <p class="text-muted small mb-0">This action cannot be undone without re-registering.</p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" @onclick="() => showCancelConfirm = false">Keep Registration</button>
+                    <button class="btn btn-danger" @onclick="ConfirmCancel">Yes, Cancel Registration</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     private Participant? participant;
     private List<Registration> registrations = new();
+
+    private bool showCancelConfirm = false;
+    private int pendingCancelId = 0;
+    private string cancelEventName = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -112,9 +138,17 @@ else
             .ToListAsync();
     }
 
-    private async Task CancelRegistration(int id)
+    private void PromptCancel(int id, string? eventName)
     {
-        var reg = await Db.Registrations.FindAsync(id);
+        pendingCancelId = id;
+        cancelEventName = eventName ?? "this event";
+        showCancelConfirm = true;
+    }
+
+    private async Task ConfirmCancel()
+    {
+        showCancelConfirm = false;
+        var reg = await Db.Registrations.FindAsync(pendingCancelId);
         if (reg != null && reg.ParticipantId == Session.CurrentParticipantId)
         {
             reg.Status = "Cancelled";
@@ -138,6 +172,7 @@ else
         "Confirmed" => "success",
         "Cancelled" => "danger",
         "Waitlisted" => "warning",
+        "Pending" => "secondary",
         _ => "secondary"
     };
 }

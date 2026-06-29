@@ -1,9 +1,10 @@
 ﻿@page "/admin/participants"
 @rendermode InteractiveServer
 @inject AppDbContext Db
+@inject IParticipantService ParticipantSvc
 
 <h3>Participants</h3>
-<button class="btn btn-success mb-3" @onclick="() => showForm = true">+ Add Participant</button>
+<button class="btn btn-success mb-3" @onclick="OpenAddForm">+ Add Participant</button>
 
 @if (showForm)
 {
@@ -32,6 +33,34 @@
     </div>
 }
 
+@if (resetPasswordId.HasValue)
+{
+    <div class="card mb-4 p-3 shadow-sm border-warning">
+        <h5>Reset Password for <strong>@resetPasswordName</strong></h5>
+        <div class="mb-2">
+            <label>New Password</label>
+            <input type="password" class="form-control" @bind="resetNewPassword" />
+            <div class="form-text text-muted">Min 8 chars, must include uppercase, lowercase, number and special character.</div>
+        </div>
+        <div class="mb-2">
+            <label>Confirm New Password</label>
+            <input type="password" class="form-control" @bind="resetConfirmPassword" />
+        </div>
+        @if (!string.IsNullOrEmpty(resetError))
+        {
+            <div class="alert alert-danger py-1">@resetError</div>
+        }
+        @if (!string.IsNullOrEmpty(resetSuccess))
+        {
+            <div class="alert alert-success py-1">@resetSuccess</div>
+        }
+        <div class="mt-2">
+            <button class="btn btn-warning me-2" @onclick="DoResetPassword">Reset Password</button>
+            <button class="btn btn-secondary" @onclick="CancelReset">Cancel</button>
+        </div>
+    </div>
+}
+
 <table class="table table-hover">
     <thead class="table-dark">
         <tr><th>Name</th><th>Email</th><th>Phone</th><th>Registrations</th><th>Actions</th></tr>
@@ -46,6 +75,7 @@
                 <td>@p.Registrations.Count</td>
                 <td>
                     <button class="btn btn-sm btn-warning me-1" @onclick="() => StartEdit(p)">Edit</button>
+                    <button class="btn btn-sm btn-info me-1 text-white" @onclick="() => StartResetPassword(p)">Reset PW</button>
                     <button class="btn btn-sm btn-danger" @onclick="() => DeleteParticipant(p.ParticipantId)">Delete</button>
                 </td>
             </tr>
@@ -62,6 +92,14 @@
     private bool showForm;
     private string formError = "";
 
+    // Reset password state
+    private int? resetPasswordId;
+    private string resetPasswordName = "";
+    private string resetNewPassword = "";
+    private string resetConfirmPassword = "";
+    private string resetError = "";
+    private string resetSuccess = "";
+
     protected override async Task OnInitializedAsync()
     {
         if (!Session.IsAdmin)
@@ -73,11 +111,35 @@
             .Include(p => p.Registrations)
             .ToListAsync();
     }
+
+    private void OpenAddForm()
+    {
+        showForm = true;
+        editingId = null;
+        form = new();
+        formError = "";
+        resetPasswordId = null;
+    }
+
     private void StartEdit(Participant p)
     {
         editingId = p.ParticipantId;
         form = new Participant { Name = p.Name, Email = p.Email, Phone = p.Phone };
         showForm = true;
+        resetPasswordId = null;
+        resetError = "";
+        resetSuccess = "";
+    }
+
+    private void StartResetPassword(Participant p)
+    {
+        resetPasswordId = p.ParticipantId;
+        resetPasswordName = p.Name;
+        resetNewPassword = "";
+        resetConfirmPassword = "";
+        resetError = "";
+        resetSuccess = "";
+        showForm = false;
     }
 
     private void CancelForm()
@@ -88,12 +150,47 @@
         formError = "";
     }
 
+    private void CancelReset()
+    {
+        resetPasswordId = null;
+        resetNewPassword = "";
+        resetConfirmPassword = "";
+        resetError = "";
+        resetSuccess = "";
+    }
+
+    private bool IsValidEmail(string email)
+    {
+        try
+        {
+            var addr = new System.Net.Mail.MailAddress(email);
+            // Must have a dot in the domain part
+            var domain = addr.Host;
+            return addr.Address == email && domain.Contains('.');
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private bool IsValidPassword(string password, out string pwError)
+    {
+        pwError = "";
+        if (password.Length < 8) { pwError = "Password must be at least 8 characters."; return false; }
+        if (!password.Any(char.IsUpper)) { pwError = "Password must contain at least one uppercase letter."; return false; }
+        if (!password.Any(char.IsLower)) { pwError = "Password must contain at least one lowercase letter."; return false; }
+        if (!password.Any(char.IsDigit)) { pwError = "Password must contain at least one number."; return false; }
+        if (!password.Any(c => !char.IsLetterOrDigit(c))) { pwError = "Password must contain at least one special character."; return false; }
+        return true;
+    }
+
     private async Task SaveParticipant()
     {
         formError = "";
         if (string.IsNullOrWhiteSpace(form.Name)) { formError = "Name is required."; return; }
         if (string.IsNullOrWhiteSpace(form.Email)) { formError = "Email is required."; return; }
-        if (!form.Email.Contains('@')) { formError = "Enter a valid email address."; return; }
+        if (!IsValidEmail(form.Email)) { formError = "Enter a valid email address (e.g. user@example.com)."; return; }
 
         try
         {
@@ -122,6 +219,28 @@
         catch (Exception ex)
         {
             formError = $"Error: {ex.Message}";
+        }
+    }
+
+    private async Task DoResetPassword()
+    {
+        resetError = "";
+        resetSuccess = "";
+
+        if (string.IsNullOrWhiteSpace(resetNewPassword)) { resetError = "Password is required."; return; }
+        if (!IsValidPassword(resetNewPassword, out var pwError)) { resetError = pwError; return; }
+        if (resetNewPassword != resetConfirmPassword) { resetError = "Passwords do not match."; return; }
+
+        var ok = await ParticipantSvc.ResetPasswordAsync(resetPasswordId!.Value, resetNewPassword);
+        if (ok)
+        {
+            resetSuccess = $"Password for {resetPasswordName} has been reset successfully.";
+            resetNewPassword = "";
+            resetConfirmPassword = "";
+        }
+        else
+        {
+            resetError = "Failed to reset password. Participant not found.";
         }
     }
 

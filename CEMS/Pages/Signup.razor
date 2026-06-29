@@ -4,43 +4,49 @@
 @inject SessionService Session
 @inject NavigationManager Nav
 
-<div class="row justify-content-center mt-4">
-    <div class="col-md-5">
-        <div class="card shadow">
-            <div class="card-header bg-success text-white text-center">
-                <h4 class="mb-0">Create Account</h4>
-            </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <label class="form-label">Full Name</label>
-                    <input class="form-control" @bind="name" placeholder="Jane Smith" />
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Email</label>
-                    <input type="email" class="form-control" @bind="email" placeholder="jane@example.com" />
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Phone</label>
-                    <input type="tel" class="form-control" @bind="phone" placeholder="07700123456" />
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-control" @bind="password" />
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Confirm Password</label>
-                    <input type="password" class="form-control" @bind="confirmPassword" />
-                </div>
+<div style="min-height:100vh; background:url('/signup-bg.jpg') center/cover no-repeat; display:flex; align-items:center; justify-content:center; padding:2rem;">
+    <div style="width:100%; max-width:520px;">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header bg-success text-white text-center">
+                        <h4 class="mb-0">Create Account</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input class="form-control" @bind="name" placeholder="Jane Smith" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" @bind="email" placeholder="jane@example.com" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="tel" class="form-control" @bind="phone" placeholder="+447700123456" />
+                            <div class="form-text text-muted">Include country code, e.g. +44 followed by 10 digits.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control" @bind="password" />
+                            <div class="form-text text-muted">Min 8 chars, must include uppercase, lowercase, number and special character.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" @bind="confirmPassword" />
+                        </div>
 
-                @if (!string.IsNullOrEmpty(error))
-                {
-                    <div class="alert alert-danger py-2">@error</div>
-                }
+                        @if (!string.IsNullOrEmpty(error))
+                        {
+                            <div class="alert alert-danger py-2">@error</div>
+                        }
 
-                <button class="btn btn-success w-100" @onclick="DoSignup">Create Account</button>
-                <p class="text-center mt-3 mb-0 text-muted small">
-                    Already have an account? <a href="/login">Log in</a>
-                </p>
+                        <button class="btn btn-success w-100" @onclick="DoSignup">Create Account</button>
+                        <p class="text-center mt-3 mb-0 text-muted small">
+                            Already have an account? <a href="/login">Log in</a>
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -49,6 +55,50 @@
 @code {
     private string name = "", email = "", phone = "", password = "", confirmPassword = "";
     private string error = "";
+
+    private bool IsValidEmail(string mail)
+    {
+        try
+        {
+            var addr = new System.Net.Mail.MailAddress(mail);
+            return addr.Address == mail && addr.Host.Contains('.');
+        }
+        catch { return false; }
+    }
+
+    private bool IsValidPassword(string pw, out string pwError)
+    {
+        pwError = "";
+        if (pw.Length < 8) { pwError = "Password must be at least 8 characters."; return false; }
+        if (!pw.Any(char.IsUpper)) { pwError = "Password must contain at least one uppercase letter."; return false; }
+        if (!pw.Any(char.IsLower)) { pwError = "Password must contain at least one lowercase letter."; return false; }
+        if (!pw.Any(char.IsDigit)) { pwError = "Password must contain at least one number."; return false; }
+        if (!pw.Any(c => !char.IsLetterOrDigit(c))) { pwError = "Password must contain at least one special character."; return false; }
+        return true;
+    }
+
+    private bool IsValidPhone(string ph, out string phError)
+    {
+        phError = "";
+        var digits = ph.Replace(" ", "").Replace("-", "");
+        if (!digits.StartsWith("+"))
+        {
+            phError = "Phone number must start with a country code (e.g. +44).";
+            return false;
+        }
+        var afterPlus = digits.Substring(1);
+        if (!afterPlus.All(char.IsDigit))
+        {
+            phError = "Phone number may only contain digits after the country code prefix.";
+            return false;
+        }
+        if (afterPlus.Length < 11 || afterPlus.Length > 13)
+        {
+            phError = "Phone number must have a country code plus 10 digits (e.g. +447700123456).";
+            return false;
+        }
+        return true;
+    }
 
     protected override void OnInitialized()
     {
@@ -60,9 +110,10 @@
         error = "";
 
         if (string.IsNullOrWhiteSpace(name)) { error = "Name is required."; return; }
-        if (string.IsNullOrWhiteSpace(email) || !email.Contains('@')) { error = "A valid email is required."; return; }
+        if (string.IsNullOrWhiteSpace(email) || !IsValidEmail(email)) { error = "A valid email address is required (e.g. user@example.com)."; return; }
         if (string.IsNullOrWhiteSpace(phone)) { error = "Phone number is required."; return; }
-        if (password.Length < 6) { error = "Password must be at least 6 characters."; return; }
+        if (!IsValidPhone(phone.Trim(), out var phError)) { error = phError; return; }
+        if (!IsValidPassword(password, out var pwError)) { error = pwError; return; }
         if (password != confirmPassword) { error = "Passwords do not match."; return; }
 
         bool emailTaken = await Db.Participants.AnyAsync(p => p.Email == email.Trim().ToLower());

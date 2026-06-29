@@ -33,6 +33,12 @@
             <p class="mb-0">Registrations</p>
         </div>
     </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-danger text-center p-3">
+            <h2>@pendingCount</h2>
+            <p class="mb-0">Pending Approvals</p>
+        </div>
+    </div>
 </div>
 
 <div class="row g-3">
@@ -80,10 +86,21 @@
             </div>
         </div>
     </div>
+    <div class="col-md-3">
+        <div class="card h-100 shadow-sm border-danger">
+            <div class="card-body text-center">
+                <h5>Registrations</h5>
+                <p class="text-muted small">Approve or reject event registrations</p>
+                <button class="btn btn-danger w-100" @onclick='() => NavigationManager.NavigateTo("/admin/registrations")'>
+                    Manage Registrations @(pendingCount > 0 ? $"({pendingCount} pending)" : "")
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 @code {
-    private int eventCount, participantCount, venueCount, registrationCount;
+    private int eventCount, participantCount, venueCount, registrationCount, pendingCount;
 
     protected override async Task OnInitializedAsync()
     {
@@ -97,6 +114,7 @@
         participantCount = await Db.Participants.CountAsync();
         venueCount = await Db.Venues.CountAsync();
         registrationCount = await Db.Registrations.CountAsync();
+        pendingCount = await Db.Registrations.CountAsync(r => r.Status == "Pending");
     }
 
     private void Logout()

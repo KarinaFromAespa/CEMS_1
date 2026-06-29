@@ -10,5 +10,6 @@ namespace CEMS.Services
         Task UpdateParticipantAsync(Participant participant);
         Task DeleteParticipantAsync(int id);
         Task<List<Participant>> FilterParticipantsAsync(string? name, string? email);
+        Task<bool> ResetPasswordAsync(int participantId, string newPassword);
     }
 }
