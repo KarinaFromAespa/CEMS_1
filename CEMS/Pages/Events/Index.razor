@@ -2,76 +2,88 @@
 @rendermode InteractiveServer
 @inject IEventService EventService
 @inject NavigationManager Nav
-@using CEMS.Services
 
-<h3>Upcoming Events</h3>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold">Events</h3>
+    <button class="btn btn-success" @onclick='() => Nav.NavigateTo("/admin/events/create")'>
+        <i class="bi bi-plus-lg me-1"></i> New Event
+    </button>
+</div>
 
-<div class="row mb-3">
-    <div class="col-md-3">
-        <label>Filter by Date</label>
-        <input type="date" class="form-control" @bind="filterDate" />
-    </div>
-    <div class="col-md-3">
-        <label>Filter by Venue</label>
-        <select class="form-select" @bind="filterVenueId">
-            <option value="">-- All Venues --</option>
-            @foreach (var v in venues)
-            {
-                <option value="@v.VenueId">@v.Name</option>
-            }
-        </select>
-    </div>
-    <div class="col-md-3 d-flex align-items-end">
-        <button class="btn btn-primary me-2" @onclick="ApplyFilter">Filter</button>
-        <button class="btn btn-secondary" @onclick="ClearFilter">Clear</button>
-    </div>
-    <div class="col-md-3 d-flex align-items-end justify-content-end">
-        <button class="btn btn-success" @onclick='() => Nav.NavigateTo("/admin/events/create")'>+ New Event</button>
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold">Date</label>
+                <input type="date" class="form-control" @bind="filterDate" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold">Venue</label>
+                <select class="form-select" @bind="filterVenueId">
+                    <option value="">-- All Venues --</option>
+                    @foreach (var v in venues)
+                    {
+                        <option value="@v.VenueId">@v.Name</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button class="btn btn-primary" @onclick="ApplyFilter"><i class="bi bi-funnel me-1"></i>Filter</button>
+                <button class="btn btn-outline-secondary" @onclick="ClearFilter">Clear</button>
+            </div>
+        </div>
     </div>
 </div>
 
 @if (events == null)
 {
-    <p>Loading...</p>
+    <div class="text-center py-5 text-muted">Loading...</div>
 }
 else if (!events.Any())
 {
-    <p class="text-muted">No events found.</p>
+    <div class="text-center py-5 text-muted">No events found.</div>
 }
 else
 {
-    <table class="table table-hover">
-        <thead class="table-dark">
-            <tr>
-                <th>Name</th>
-                <th>Date</th>
-                <th>Venue</th>
-                <th>Activities</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var evt in events)
-            {
-                <tr>
-                    <td>@evt.Name</td>
-                    <td>@evt.Date.ToString("dd MMM yyyy") @evt.Time.ToString(@"hh\:mm")</td>
-                    <td>@evt.Venue?.Name</td>
-                    <td>@string.Join(", ", evt.EventActivities.Select(ea => ea.Activity?.Name))</td>
-                    <td>
-                        <button class="btn btn-sm btn-info me-1" @onclick="() => ViewEvent(evt.EventId)">View</button>
-                        <button class="btn btn-sm btn-warning me-1" @onclick="() => EditEvent(evt.EventId)">Edit</button>
-                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteEvent(evt.EventId)">Delete</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Name</th>
+                        <th>Date</th>
+                        <th>Venue</th>
+                        <th>Activities</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var evt in events)
+                    {
+                        <tr>
+                            <td>@evt.Name</td>
+                            <td>@evt.Date.ToString("dd MMM yyyy") @evt.Time.ToString(@"hh\:mm")</td>
+                            <td>@evt.Venue?.Name</td>
+                            <td>@string.Join(", ", evt.EventActivities.Select(ea => ea.Activity?.Name))</td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-info me-1" @onclick="() => ViewEvent(evt.EventId)">View</button>
+                                <button class="btn btn-sm btn-outline-warning me-1" @onclick="() => EditEvent(evt.EventId)">Edit</button>
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteEvent(evt.EventId)">Delete</button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 }
 
 @if (!string.IsNullOrEmpty(message))
 {
-    <div class="alert alert-success">@message</div>
+    <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+        @message
+        <button type="button" class="btn-close" @onclick="() => message = null"></button>
+    </div>
 }
 
 @code {

@@ -4,53 +4,59 @@
 @inject SessionService Session
 @inject NavigationManager Nav
 
-<div style="min-height:100vh; background:url('/signup-bg.jpg') center/cover no-repeat; display:flex; align-items:center; justify-content:center; padding:2rem;">
-    <div style="width:100%; max-width:520px;">
-        <div class="row justify-content-center">
-            <div class="col-12">
-                <div class="card shadow">
-                    <div class="card-header bg-success text-white text-center">
-                        <h4 class="mb-0">Create Account</h4>
+<div class="auth-bg">
+    <div class="row justify-content-center align-items-center min-vh-100 m-0">
+        <div class="col-11 col-sm-9 col-md-7 col-lg-5 col-xl-4">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-success text-white text-center py-3">
+                    <h4 class="mb-0 fw-bold"><i class="bi bi-person-plus me-2"></i>Create Account</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label">Full Name</label>
+                        <input class="form-control" @bind="name" placeholder="Jane Smith" />
                     </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label class="form-label">Full Name</label>
-                            <input class="form-control" @bind="name" placeholder="Jane Smith" />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="email" class="form-control" @bind="email" placeholder="jane@example.com" />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Phone</label>
-                            <input type="tel" class="form-control" @bind="phone" placeholder="+447700123456" />
-                            <div class="form-text text-muted">Include country code, e.g. +44 followed by 10 digits.</div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Password</label>
-                            <input type="password" class="form-control" @bind="password" />
-                            <div class="form-text text-muted">Min 8 chars, must include uppercase, lowercase, number and special character.</div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Confirm Password</label>
-                            <input type="password" class="form-control" @bind="confirmPassword" />
-                        </div>
-
-                        @if (!string.IsNullOrEmpty(error))
-                        {
-                            <div class="alert alert-danger py-2">@error</div>
-                        }
-
-                        <button class="btn btn-success w-100" @onclick="DoSignup">Create Account</button>
-                        <p class="text-center mt-3 mb-0 text-muted small">
-                            Already have an account? <a href="/login">Log in</a>
-                        </p>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" @bind="email" placeholder="jane@example.com" />
                     </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input type="tel" class="form-control" @bind="phone" placeholder="+447700123456" />
+                        <div class="form-text">Include country code, e.g. +44 and 10 digits.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control" @bind="password" />
+                        <div class="form-text">Min 8 chars, uppercase, lowercase, number & special character.</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" @bind="confirmPassword" />
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(error))
+                    {
+                        <div class="alert alert-danger py-2">@error</div>
+                    }
+
+                    <button class="btn btn-success btn-lg w-100" @onclick="DoSignup">Create Account</button>
+                    <p class="text-center mt-3 mb-0 text-muted small">
+                        Already have an account? <a href="/login" class="fw-semibold">Log in</a>
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .auth-bg {
+        background: url('/signup-bg.jpg') center/cover no-repeat;
+        min-height: 100vh;
+    }
+</style>
+
 
 @code {
     private string name = "", email = "", phone = "", password = "", confirmPassword = "";

@@ -5,99 +5,90 @@
 @inject AppDbContext Db
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3>Admin Dashboard</h3>
+    <h3 class="fw-bold">Dashboard</h3>
 </div>
 
-<div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="card text-white bg-primary text-center p-3">
-            <h2>@eventCount</h2>
-            <p class="mb-0">Events</p>
+<div class="row g-4 mb-4">
+    <div class="col-xl-2 col-md-4 col-6">
+        <div class="card border-0 shadow-sm text-white bg-primary rounded-3">
+            <div class="card-body text-center py-3">
+                <h2 class="fw-bold">@eventCount</h2>
+                <p class="mb-0 small opacity-75">Events</p>
+            </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-success text-center p-3">
-            <h2>@participantCount</h2>
-            <p class="mb-0">Participants</p>
+    <div class="col-xl-2 col-md-4 col-6">
+        <div class="card border-0 shadow-sm text-white bg-success rounded-3">
+            <div class="card-body text-center py-3">
+                <h2 class="fw-bold">@participantCount</h2>
+                <p class="mb-0 small opacity-75">Participants</p>
+            </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-warning text-center p-3">
-            <h2>@venueCount</h2>
-            <p class="mb-0">Venues</p>
+    <div class="col-xl-2 col-md-4 col-6">
+        <div class="card border-0 shadow-sm text-white bg-warning rounded-3">
+            <div class="card-body text-center py-3">
+                <h2 class="fw-bold">@venueCount</h2>
+                <p class="mb-0 small opacity-75">Venues</p>
+            </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-info text-center p-3">
-            <h2>@registrationCount</h2>
-            <p class="mb-0">Registrations</p>
+    <div class="col-xl-2 col-md-4 col-6">
+        <div class="card border-0 shadow-sm text-white bg-info rounded-3">
+            <div class="card-body text-center py-3">
+                <h2 class="fw-bold">@registrationCount</h2>
+                <p class="mb-0 small opacity-75">Registrations</p>
+            </div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-danger text-center p-3">
-            <h2>@pendingCount</h2>
-            <p class="mb-0">Pending Approvals</p>
+    <div class="col-xl-2 col-md-4 col-6">
+        <div class="card border-0 shadow-sm text-white bg-danger rounded-3">
+            <div class="card-body text-center py-3">
+                <h2 class="fw-bold">@pendingCount</h2>
+                <p class="mb-0 small opacity-75">Pending</p>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="row g-3">
-    <div class="col-md-3">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body text-center">
-                <h5>Events</h5>
-                <p class="text-muted small">Create, edit and delete events</p>
-                <button class="btn btn-primary w-100" @onclick='() => NavigationManager.NavigateTo("/admin/events")'>
-                    Manage Events
-                </button>
+<div class="row g-4">
+    @{
+        var cards = new[]
+        {
+            new { Title = "Events", Desc = "Create, edit, delete", Color = "primary", Url = "/admin/events", Extra = "" },
+            new { Title = "Participants", Desc = "View, manage", Color = "success", Url = "/admin/participants", Extra = "" },
+            new { Title = "Venues", Desc = "Add, update", Color = "warning", Url = "/admin/venues", Extra = "" },
+            new { Title = "Activities", Desc = "Manage types", Color = "info", Url = "/admin/activities", Extra = "" },
+            new { Title = "Registrations", Desc = "Approve/reject", Color = "danger", Url = "/admin/registrations", Extra = $"({pendingCount} pending)" }
+        };
+    }
+    @foreach (var item in cards)
+    {
+        <div class="col-xl-2 col-md-4 col-sm-6">
+            <div class="card h-100 border-0 shadow-sm manage-card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">@item.Title</h5>
+                    <p class="text-muted small mb-3">@item.Desc</p>
+                    <a href="@item.Url" class="btn btn-@item.Color btn-sm w-100 stretched-link">
+                        Manage @item.Extra
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body text-center">
-                <h5>Participants</h5>
-                <p class="text-muted small">View and manage participants</p>
-                <button class="btn btn-success w-100" @onclick='() => NavigationManager.NavigateTo("/admin/participants")'>
-                    Manage Participants
-                </button>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body text-center">
-                <h5>Venues</h5>
-                <p class="text-muted small">Add and update venues</p>
-                <button class="btn btn-warning w-100" @onclick='() => NavigationManager.NavigateTo("/admin/venues")'>
-                    Manage Venues
-                </button>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body text-center">
-                <h5>Activities</h5>
-                <p class="text-muted small">Manage activity types</p>
-                <button class="btn btn-info w-100" @onclick='() => NavigationManager.NavigateTo("/admin/activities")'>
-                    Manage Activities
-                </button>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card h-100 shadow-sm border-danger">
-            <div class="card-body text-center">
-                <h5>Registrations</h5>
-                <p class="text-muted small">Approve or reject event registrations</p>
-                <button class="btn btn-danger w-100" @onclick='() => NavigationManager.NavigateTo("/admin/registrations")'>
-                    Manage Registrations @(pendingCount > 0 ? $"({pendingCount} pending)" : "")
-                </button>
-            </div>
-        </div>
-    </div>
+    }
 </div>
+
+<style>
+    .manage-card {
+        transition: transform 0.15s, box-shadow 0.15s;
+        border-radius: 0.75rem;
+    }
+
+        .manage-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1) !important;
+        }
+</style>
 
 @code {
     private int eventCount, participantCount, venueCount, registrationCount, pendingCount;

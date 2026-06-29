@@ -2,56 +2,66 @@
 @rendermode InteractiveServer
 @inject AppDbContext Db
 
-<h3>Activities</h3>
-<button class="btn btn-success mb-3" @onclick="() => showForm = true">+ Add Activity</button>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-bold">Activities</h3>
+    <button class="btn btn-success" @onclick="() => showForm = true">
+        <i class="bi bi-plus-lg me-1"></i> Add Activity
+    </button>
+</div>
 
 @if (showForm)
 {
-    <div class="card mb-4 p-3 shadow-sm">
-        <h5>@(editingId == null ? "New Activity" : "Edit Activity")</h5>
-        <div class="mb-2">
-            <label>Name</label>
-            <input class="form-control" @bind="form.Name" />
-        </div>
-        <div class="mb-2">
-            <label>Type</label>
-            <select class="form-select" @bind="form.Type">
-                <option value="">-- Select Type --</option>
-                <option>Workshop</option>
-                <option>Talk</option>
-                <option>Game</option>
-                <option>Other</option>
-            </select>
-        </div>
-        @if (!string.IsNullOrEmpty(formError))
-        {
-            <div class="alert alert-danger py-1">@formError</div>
-        }
-        <div class="mt-2">
-            <button class="btn btn-primary me-2" @onclick="SaveActivity">Save</button>
-            <button class="btn btn-secondary" @onclick="CancelForm">Cancel</button>
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title mb-3">@(editingId == null ? "New Activity" : "Edit Activity")</h5>
+            <div class="mb-3">
+                <label class="form-label">Name</label>
+                <input class="form-control" @bind="form.Name" placeholder="e.g., Coding Workshop" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Type</label>
+                <select class="form-select" @bind="form.Type">
+                    <option value="">-- Select Type --</option>
+                    <option>Workshop</option>
+                    <option>Talk</option>
+                    <option>Game</option>
+                    <option>Other</option>
+                </select>
+            </div>
+            @if (!string.IsNullOrEmpty(formError))
+            {
+                <div class="alert alert-danger py-2">@formError</div>
+            }
+            <div class="d-flex gap-2">
+                <button class="btn btn-primary" @onclick="SaveActivity">Save</button>
+                <button class="btn btn-outline-secondary" @onclick="CancelForm">Cancel</button>
+            </div>
         </div>
     </div>
 }
 
-<table class="table table-hover">
-    <thead class="table-dark">
-        <tr><th>Name</th><th>Type</th><th>Actions</th></tr>
-    </thead>
-    <tbody>
-        @foreach (var a in activities)
-        {
-            <tr>
-                <td>@a.Name</td>
-                <td><span class="badge bg-secondary">@a.Type</span></td>
-                <td>
-                    <button class="btn btn-sm btn-warning me-1" @onclick="() => StartEdit(a)">Edit</button>
-                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteActivity(a.ActivityId)">Delete</button>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr><th>Name</th><th>Type</th><th class="text-end">Actions</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var a in activities)
+                {
+                    <tr>
+                        <td>@a.Name</td>
+                        <td><span class="badge bg-secondary">@a.Type</span></td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-outline-warning me-1" @onclick="() => StartEdit(a)">Edit</button>
+                            <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteActivity(a.ActivityId)">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
 
 @code {
     [Inject] private SessionService Session { get; set; } = default!;

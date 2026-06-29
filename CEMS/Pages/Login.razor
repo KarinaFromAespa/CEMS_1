@@ -4,43 +4,48 @@
 @inject SessionService Session
 @inject NavigationManager Nav
 
-<div style="min-height:100vh; background:url('/login-bg.jpg') center/cover no-repeat; display:flex; align-items:center; justify-content:center; padding:2rem;">
-    <div style="width:100%; max-width:420px;">
-        <div class="row justify-content-center">
-            <div class="col-12">
-                <div class="card shadow">
-                    <div class="card-header bg-primary text-white text-center">
-                        <h4 class="mb-0">Log In</h4>
+<div class="auth-bg">
+    <div class="row justify-content-center align-items-center min-vh-100 m-0">
+        <div class="col-11 col-sm-8 col-md-5 col-lg-4">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h4 class="mb-0 fw-bold"><i class="bi bi-box-arrow-in-right me-2"></i>Log In</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control form-control-lg" @bind="email" @onkeydown="OnKey" placeholder="jane@email.com" />
                     </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="email" class="form-control" @bind="email" @onkeydown="OnKey" placeholder="jane@email.com" />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Password</label>
-                            <input type="password" class="form-control" @bind="password" @onkeydown="OnKey" />
-                        </div>
-
-                        @if (!string.IsNullOrEmpty(error))
-                        {
-                            <div class="alert alert-danger py-2">@error</div>
-                        }
-
-                        <button class="btn btn-primary w-100" @onclick="DoLogin">Log In</button>
-                        <p class="text-center mt-3 mb-0 text-muted small">
-                            No account? <a href="/signup">Sign up</a>
-                        </p>
-                        <hr />
-                        <p class="text-center mb-0">
-                            <a class="text-warning small" href="/admin/login">Admin login →</a>
-                        </p>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control form-control-lg" @bind="password" @onkeydown="OnKey" />
                     </div>
+
+                    @if (!string.IsNullOrEmpty(error))
+                    {
+                        <div class="alert alert-danger py-2">@error</div>
+                    }
+
+                    <button class="btn btn-primary btn-lg w-100" @onclick="DoLogin">Log In</button>
+                    <p class="text-center mt-3 mb-0 text-muted small">
+                        No account? <a href="/signup" class="fw-semibold">Sign up</a>
+                    </p>
+                    <hr />
+                    <p class="text-center mb-0">
+                        <a class="text-warning small fw-semibold" href="/admin/login">Admin login →</a>
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .auth-bg {
+        background: url('/login-bg.jpg') center/cover no-repeat;
+        min-height: 100vh;
+    }
+</style>
 
 @code {
     private string email = "", password = "", error = "";

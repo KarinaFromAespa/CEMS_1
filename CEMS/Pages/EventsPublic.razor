@@ -3,69 +3,76 @@
 @inject IEventService EventService
 @inject SessionService Session
 
-<h3>📅 Upcoming Events</h3>
+<h3 class="fw-bold mb-4">📅 Upcoming Events</h3>
 
-<div class="row mb-3">
-    <div class="col-md-3">
-        <input type="date" class="form-control"
-               value="@filterDate?.ToString("yyyy-MM-dd")"
-               @onchange="e => { filterDate = e.Value != null && !string.IsNullOrEmpty(e.Value.ToString()) ? DateTime.Parse(e.Value.ToString()!) : null; }" />
-    </div>
-    <div class="col-md-3">
-        <select class="form-select" @onchange="e => filterActivity = e.Value?.ToString()">
-            <option value="">-- All Activity Types --</option>
-            <option>Workshop</option>
-            <option>Talk</option>
-            <option>Game</option>
-            <option>Other</option>
-        </select>
-    </div>
-    <div class="col-md-2">
-        <button class="btn btn-primary" @onclick="ApplyFilter">Filter</button>
-        <button class="btn btn-secondary ms-1" @onclick="ClearFilter">Clear</button>
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold">Date</label>
+                <input type="date" class="form-control"
+                       value="@filterDate?.ToString("yyyy-MM-dd")"
+                       @onchange="e => { filterDate = e.Value != null && !string.IsNullOrEmpty(e.Value.ToString()) ? DateTime.Parse(e.Value.ToString()!) : null; }" />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold">Activity Type</label>
+                <select class="form-select" @onchange="e => filterActivity = e.Value?.ToString()">
+                    <option value="">-- All --</option>
+                    <option>Workshop</option>
+                    <option>Talk</option>
+                    <option>Game</option>
+                    <option>Other</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button class="btn btn-primary" @onclick="ApplyFilter"><i class="bi bi-funnel me-1"></i>Filter</button>
+                <button class="btn btn-outline-secondary" @onclick="ClearFilter">Clear</button>
+            </div>
+        </div>
     </div>
 </div>
 
 @if (events == null)
 {
-    <p>Loading...</p>
+    <div class="text-center py-5 text-muted">Loading...</div>
 }
 else if (!events.Any())
 {
-    <p class="text-muted">No upcoming events found.</p>
+    <div class="text-center py-5 text-muted">No upcoming events found.</div>
 }
 else
 {
-    <div class="row g-3">
+    <div class="row g-4">
         @foreach (var evt in events)
         {
-            <div class="col-md-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                        <h6 class="mb-0">@evt.Name</h6>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-0 shadow-sm event-card">
+                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                        <h6 class="mb-0 fw-bold">@evt.Name</h6>
+                        <span class="badge bg-primary">@evt.Date.ToString("dd MMM")</span>
                     </div>
                     <div class="card-body">
-                        <p class="mb-1"><strong>📅</strong> @evt.Date.ToString("dd MMM yyyy") at @evt.Time.ToString(@"hh\:mm")</p>
-                        <p class="mb-1"><strong>📍</strong> @evt.Venue?.Name</p>
-                        <p class="mb-1 text-muted small">@evt.Description</p>
+                        <p class="mb-1 small"><strong>⏰</strong> @evt.Time.ToString(@"hh\:mm")</p>
+                        <p class="mb-1 small"><strong>📍</strong> @evt.Venue?.Name</p>
+                        <p class="text-muted small">@evt.Description</p>
                         @if (evt.EventActivities.Any())
                         {
-                            <div class="mt-2">
+                            <div class="d-flex flex-wrap gap-1 mt-2">
                                 @foreach (var ea in evt.EventActivities)
                                 {
-                                    <span class="badge bg-secondary me-1">@ea.Activity?.Name</span>
+                                    <span class="badge bg-light text-dark">@ea.Activity?.Name</span>
                                 }
                             </div>
                         }
                     </div>
-                    <div class="card-footer">
+                    <div class="card-footer bg-white border-0">
                         @if (Session.IsLoggedIn)
                         {
-                            <a href="/register" class="btn btn-sm btn-success w-100">Register for this Event</a>
+                            <a href="/register" class="btn btn-primary btn-sm w-100">Register</a>
                         }
                         else
                         {
-                            <a href="/login" class="btn btn-sm btn-outline-secondary w-100">Log in to Register</a>
+                            <a href="/login" class="btn btn-outline-secondary btn-sm w-100">Log in to Register</a>
                         }
                     </div>
                 </div>
@@ -73,6 +80,17 @@ else
         }
     </div>
 }
+
+<style>
+    .event-card {
+        transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+        .event-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.08) !important;
+        }
+</style>
 
 @code {
     private List<Event>? events;

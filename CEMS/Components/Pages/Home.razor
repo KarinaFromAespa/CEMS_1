@@ -5,191 +5,197 @@
 
 <PageTitle>CEMS – Community Event Management</PageTitle>
 
-@* <div class="hero-section rounded-3 mb-4 p-5 text-white position-relative overflow-hidden">
-    <img src="img1.jpg" alt="Community Event" class="hero-bg-img" /> *@
-<div class="hero-section rounded-3 mb-4 p-5 text-white position-relative overflow-hidden" style="background-image: url('bg.jpg');">
-    <div class="hero-overlay"></div>
+<div class="hero-section rounded-4 mb-5 p-5 text-white position-relative overflow-hidden shadow-lg">
     <div class="hero-overlay"></div>
     <div class="position-relative" style="z-index:2">
-        <h1 class="display-5 fw-bold mb-2">Welcome to CEMS</h1>
-        <p class="lead mb-4">Discover and join community events happening near you. Browse workshops, talks, games and more.</p>
-        <a href="/events-public" class="btn btn-light btn-lg me-2">
-            <span class="bi bi-calendar3 me-1"></span> Browse Events
-        </a>
-        <a href="/register" class="btn btn-outline-light btn-lg">
-            <span class="bi bi-plus-circle me-1"></span> Register Now
-        </a>
-    </div>
-</div>
-
-<div class="row g-3 mb-4">
-    <div class="col-6 col-md-3">
-        <div class="card text-center border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="display-6 fw-bold text-primary">@eventCount</div>
-                <div class="text-muted small">Upcoming Events</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="card text-center border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="display-6 fw-bold text-success">@venueCount</div>
-                <div class="text-muted small">Venues</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="card text-center border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="display-6 fw-bold text-warning">@activityCount</div>
-                <div class="text-muted small">Activity Types</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-6 col-md-3">
-        <div class="card text-center border-0 shadow-sm h-100">
-            <div class="card-body">
-                <div class="display-6 fw-bold text-info">@registrationCount</div>
-                <div class="text-muted small">Registrations</div>
-            </div>
+        <h1 class="display-4 fw-bold mb-3">Discover & Join Community Events</h1>
+        <p class="lead mb-4 opacity-90">Workshops, talks, games and more — right in your neighbourhood. Free to register.</p>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="/events-public" class="btn btn-light btn-lg px-4 shadow-sm">
+                <span class="bi bi-calendar3 me-2"></span> Browse Events
+            </a>
+            <a href="/register" class="btn btn-outline-light btn-lg px-4">
+                <span class="bi bi-plus-circle me-2"></span> Register Now
+            </a>
         </div>
     </div>
 </div>
 
-<div class="mb-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="mb-0">🗓️ Upcoming Events</h4>
-        <a href="/events-public" class="btn btn-sm btn-outline-primary">View All</a>
+<div class="row g-4 mb-5">
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm text-center p-3 stat-card">
+            <div class="display-5 fw-bold text-primary">@eventCount</div>
+            <div class="text-muted small fw-semibold">Upcoming Events</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm text-center p-3 stat-card">
+            <div class="display-5 fw-bold text-success">@venueCount</div>
+            <div class="text-muted small fw-semibold">Venues</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm text-center p-3 stat-card">
+            <div class="display-5 fw-bold text-warning">@activityCount</div>
+            <div class="text-muted small fw-semibold">Activity Types</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card border-0 shadow-sm text-center p-3 stat-card">
+            <div class="display-5 fw-bold text-info">@registrationCount</div>
+            <div class="text-muted small fw-semibold">Registrations</div>
+        </div>
+    </div>
+</div>
+
+<div class="mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold mb-0">🗓️ Upcoming Events</h4>
+        <a href="/events-public" class="btn btn-outline-primary btn-sm px-3">View All</a>
     </div>
 
     @if (upcomingEvents == null)
     {
-        <p class="text-muted">Loading events...</p>
+        <div class="text-center py-5 text-muted">Loading events...</div>
     }
     else if (!upcomingEvents.Any())
     {
-        <p class="text-muted">No upcoming events at the moment. Check back soon!</p>
+        <div class="text-center py-5 text-muted">No upcoming events yet. Check back soon!</div>
     }
     else
     {
-        <div class="row g-3">
+        <div class="row g-4">
+            @{
+                int eventIndex = 0;   // will cycle through img1..img5
+            }
             @foreach (var evt in upcomingEvents)
             {
-                <div class="col-md-4">
-                    <div class="card h-100 shadow-sm border-0">
-                        <img src="img2.jpg" class="card-img-top event-card-img" alt="Event Image" />
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 border-0 shadow-sm event-card">
+                        <img src="img@(eventIndex % 5 + 1).jpg" class="card-img-top event-img" alt="@evt.Name" />
                         <div class="card-body">
-                            <h6 class="card-title fw-bold">@evt.Name</h6>
+                            <h5 class="card-title fw-bold">@evt.Name</h5>
                             <p class="card-text text-muted small mb-1">
-                                📅 @evt.Date.ToString("dd MMM yyyy") at @evt.Time.ToString(@"hh\:mm")
+                                <span class="me-2">📅 @evt.Date.ToString("dd MMM yyyy")</span>
+                                <span>⏰ @evt.Time.ToString(@"hh\:mm")</span>
                             </p>
-                            <p class="card-text text-muted small mb-2">
-                                📍 @evt.Venue?.Name
-                            </p>
+                            <p class="card-text text-muted small mb-2">📍 @evt.Venue?.Name</p>
                             @if (evt.EventActivities.Any())
                             {
                                 <div>
-                                    @foreach (var ea in evt.EventActivities.Take(2))
+                                    @foreach (var ea in evt.EventActivities.Take(3))
                                     {
                                         <span class="badge bg-secondary me-1">@ea.Activity?.Name</span>
                                     }
                                 </div>
                             }
                         </div>
-                        <div class="card-footer bg-transparent border-0">
-                            <a href="/register" class="btn btn-sm btn-primary w-100">Register</a>
+                        <div class="card-footer bg-white border-0 pt-0">
+                            <a href="/register" class="btn btn-primary btn-sm w-100">Register</a>
                         </div>
                     </div>
                 </div>
+                eventIndex++;
             }
         </div>
     }
 </div>
 
-<div class="mb-4">
-    <h4 class="mb-3">⚡ How It Works</h4>
-    <div class="row g-3">
+<div class="mb-5">
+    <h4 class="fw-bold mb-4">⚡ How It Works</h4>
+    <div class="row g-4">
         <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100 text-center p-3">
-                <img src="img3.jpg" class="rounded-circle mx-auto mb-3 how-img" alt="Browse Events" />
-                <h6 class="fw-bold">1. Browse Events</h6>
+            <div class="card border-0 shadow-sm text-center p-4 how-card">
+                <img src="img3.jpg" class="rounded-circle mx-auto mb-3 how-img" alt="Browse" />
+                <h5 class="fw-bold">1. Browse Events</h5>
                 <p class="text-muted small">Explore all upcoming community events filtered by date, venue, or activity type.</p>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100 text-center p-3">
+            <div class="card border-0 shadow-sm text-center p-4 how-card">
                 <img src="img4.jpg" class="rounded-circle mx-auto mb-3 how-img" alt="Register" />
-                <h6 class="fw-bold">2. Register</h6>
+                <h5 class="fw-bold">2. Register</h5>
                 <p class="text-muted small">Sign up for events with just your name, email and phone. No account needed.</p>
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card border-0 shadow-sm h-100 text-center p-3">
-                <img src="img5.jpg" class="rounded-circle mx-auto mb-3 how-img" alt="Track Registrations" />
-                <h6 class="fw-bold">3. Track Registrations</h6>
+            <div class="card border-0 shadow-sm text-center p-4 how-card">
+                <img src="img5.jpg" class="rounded-circle mx-auto mb-3 how-img" alt="Track" />
+                <h5 class="fw-bold">3. Track Registrations</h5>
                 <p class="text-muted small">View all your registrations and their status — confirmed, waitlisted or cancelled.</p>
             </div>
         </div>
     </div>
 </div>
 
-<div class="card border-0 bg-dark text-white p-4 rounded-3 mb-2">
+<div class="card border-0 bg-dark text-white p-4 rounded-4 shadow">
     <div class="row align-items-center">
         <div class="col-md-8">
-            <h5 class="mb-1">Ready to join the community?</h5>
-            <p class="mb-0 text-white-50 small">Register for an upcoming event today — it's free and takes less than a minute.</p>
+            <h5 class="fw-bold mb-2">Ready to join the community?</h5>
+            <p class="text-white-50 mb-0">Register for an upcoming event today — it's free and takes less than a minute.</p>
         </div>
         <div class="col-md-4 text-md-end mt-3 mt-md-0">
-            <a href="/register" class="btn btn-light me-2">Register Now</a>
-            <a href="/my-registrations" class="btn btn-outline-light">My Registrations</a>
+            <a href="/register" class="btn btn-light me-2 px-4">Register Now</a>
         </div>
     </div>
 </div>
 
 <style>
-    /* .hero-section {
-        min-height: 280px;
-        background-color: #1b6ec2;
-        display: flex;
-        align-items: center;
-    }
-
-    .hero-bg-img {
-        position: absolute;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        object-fit: cover;
-        opacity: 0.25;
-    } */
-
     .hero-section {
-        min-height: 280px;
-        background-color: #1b6ec2;
+        min-height: 320px;
+        background: linear-gradient(135deg, #0d6efd, #6610f2);
         background-size: cover;
         background-position: center;
-        background-repeat: no-repeat;
         display: flex;
         align-items: center;
     }
 
     .hero-overlay {
         position: absolute;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: linear-gradient(135deg, #1b6ec2cc, #0d3b6ecc);
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.35);
     }
 
-    .event-card-img {
-        height: 140px;
+    .stat-card {
+        border-radius: 1rem;
+        transition: transform 0.2s;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+        }
+
+    .event-img {
+        height: 160px;
         object-fit: cover;
     }
+
+    .event-card {
+        transition: box-shadow 0.2s, transform 0.2s;
+    }
+
+        .event-card:hover {
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.1) !important;
+            transform: translateY(-1px);
+        }
 
     .how-img {
         width: 80px;
         height: 80px;
         object-fit: cover;
+        border: 3px solid #dee2e6;
     }
+
+    .how-card {
+        transition: transform 0.2s;
+    }
+
+        .how-card:hover {
+            transform: scale(1.01);
+        }
 </style>
 
 @code {

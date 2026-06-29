@@ -6,84 +6,74 @@
 
 @if (!Session.IsLoggedIn)
 {
-    <p>Redirecting...</p>
+    <div class="text-center py-5 text-muted">Redirecting...</div>
 }
 else if (participant == null)
 {
-    <p>Loading...</p>
+    <div class="text-center py-5 text-muted">Loading...</div>
 }
 else
 {
-    <div class="row mt-2">
-        <div class="col-md-4 mb-4">
-            <div class="card shadow-sm h-100">
+    <div class="row g-4">
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">👤 My Profile</h5>
+                    <h5 class="mb-0"><i class="bi bi-person-circle me-2"></i>My Profile</h5>
                 </div>
                 <div class="card-body">
                     <dl class="row mb-0">
                         <dt class="col-sm-4">Name</dt>
                         <dd class="col-sm-8">@participant.Name</dd>
-
                         <dt class="col-sm-4">Email</dt>
                         <dd class="col-sm-8">@participant.Email</dd>
-
                         <dt class="col-sm-4">Phone</dt>
                         <dd class="col-sm-8">@participant.Phone</dd>
-
                         <dt class="col-sm-4">Member since</dt>
                         <dd class="col-sm-8">@participant.CreatedAt.ToString("dd MMM yyyy")</dd>
                     </dl>
                 </div>
             </div>
         </div>
-
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">📋 My Registrations</h5>
-                    <a href="/register" class="btn btn-sm btn-light">+ Register for Event</a>
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold">My Registrations</h5>
+                    <a href="/register" class="btn btn-sm btn-primary"><i class="bi bi-plus-circle me-1"></i> Register</a>
                 </div>
                 <div class="card-body p-0">
                     @if (!registrations.Any())
                     {
-                        <p class="text-muted p-3 mb-0">You have no event registrations yet.</p>
+                        <p class="text-muted p-3 mb-0">You haven't registered for any events yet.</p>
                     }
                     else
                     {
-                        <table class="table table-hover mb-0">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Event</th>
-                                    <th>Date</th>
-                                    <th>Venue</th>
-                                    <th>Status</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var reg in registrations)
-                                {
-                                    <tr>
-                                        <td>@reg.Event?.Name</td>
-                                        <td>@reg.Event?.Date.ToString("dd MMM yyyy")</td>
-                                        <td>@reg.Event?.Venue?.Name</td>
-                                        <td>
-                                            <span class="badge bg-@StatusColor(reg.Status)">@reg.Status</span>
-                                        </td>
-                                        <td>
-                                            @if (reg.Status != "Cancelled")
-                                            {
-                                                <button class="btn btn-sm btn-outline-danger"
-                                                        @onclick="() => PromptCancel(reg.RegistrationId, reg.Event?.Name)">
-                                                    Cancel
-                                                </button>
-                                            }
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr><th>Event</th><th>Date</th><th>Venue</th><th>Status</th><th></th></tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var reg in registrations)
+                                    {
+                                        <tr>
+                                            <td>@reg.Event?.Name</td>
+                                            <td>@reg.Event?.Date.ToString("dd MMM yyyy")</td>
+                                            <td>@reg.Event?.Venue?.Name</td>
+                                            <td><span class="badge bg-@StatusColor(reg.Status)">@reg.Status</span></td>
+                                            <td class="text-end">
+                                                @if (reg.Status != "Cancelled")
+                                                {
+                                                    <button class="btn btn-sm btn-outline-danger"
+                                                            @onclick="() => PromptCancel(reg.RegistrationId, reg.Event?.Name)">
+                                                        Cancel
+                                                    </button>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
                     }
                 </div>
             </div>
@@ -96,22 +86,23 @@ else
     <div class="modal-backdrop fade show" style="z-index:1040;"></div>
     <div class="modal fade show d-block" style="z-index:1050;" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
+            <div class="modal-content border-0 shadow">
                 <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title">Cancel Registration</h5>
                 </div>
                 <div class="modal-body">
                     <p>Are you sure you want to cancel your registration for <strong>@cancelEventName</strong>?</p>
-                    <p class="text-muted small mb-0">This action cannot be undone without re-registering.</p>
+                    <p class="text-muted small mb-0">This action cannot be undone.</p>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-secondary" @onclick="() => showCancelConfirm = false">Keep Registration</button>
-                    <button class="btn btn-danger" @onclick="ConfirmCancel">Yes, Cancel Registration</button>
+                    <button class="btn btn-outline-secondary" @onclick="() => showCancelConfirm = false">Keep Registration</button>
+                    <button class="btn btn-danger" @onclick="ConfirmCancel">Yes, Cancel</button>
                 </div>
             </div>
         </div>
     </div>
 }
+
 
 @code {
     private Participant? participant;

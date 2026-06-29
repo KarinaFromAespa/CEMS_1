@@ -2,72 +2,78 @@
 @rendermode InteractiveServer
 @inject AppDbContext Db
 
-<h3>Registrations</h3>
+<h3 class="fw-bold mb-4">Registrations</h3>
 
-<div class="mb-3 d-flex gap-2 align-items-center flex-wrap">
-    <label class="fw-semibold me-1">Filter by Status:</label>
-    @foreach (var s in new[] { "All", "Pending", "Confirmed", "Cancelled", "Waitlisted" })
-    {
-        <button class="btn btn-sm @(filterStatus == s ? "btn-dark" : "btn-outline-secondary")"
-                @onclick="() => { filterStatus = s; }">
-            @s
-        </button>
-    }
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+            <span class="fw-semibold me-2">Status:</span>
+            @foreach (var s in new[] { "All", "Pending", "Confirmed", "Cancelled", "Waitlisted" })
+            {
+                <button class="btn btn-sm @(filterStatus == s ? "btn-dark" : "btn-outline-secondary")"
+                        @onclick="() => { filterStatus = s; }">
+                    @s
+                </button>
+            }
+        </div>
+    </div>
 </div>
 
 @if (!string.IsNullOrEmpty(actionMessage))
 {
-    <div class="alert alert-@actionMessageType alert-dismissible py-2">
+    <div class="alert alert-@actionMessageType alert-dismissible fade show shadow-sm" role="alert">
         @actionMessage
         <button type="button" class="btn-close" @onclick="DismissAlert"></button>
     </div>
 }
 
-<table class="table table-hover">
-    <thead class="table-dark">
-        <tr>
-            <th>Participant</th>
-            <th>Email</th>
-            <th>Event</th>
-            <th>Date Registered</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var reg in FilteredRegistrations)
-        {
-            <tr>
-                <td>@reg.Participant?.Name</td>
-                <td>@reg.Participant?.Email</td>
-                <td>@reg.Event?.Name</td>
-                <td>@reg.RegistrationDate.ToString("dd MMM yyyy")</td>
-                <td>
-                    <span class="badge bg-@StatusColor(reg.Status)">@reg.Status</span>
-                </td>
-                <td>
-                    @if (reg.Status == "Pending")
-                    {
-                        <button class="btn btn-sm btn-success me-1" @onclick="() => Approve(reg.RegistrationId)">Approve</button>
-                        <button class="btn btn-sm btn-danger" @onclick="() => Reject(reg.RegistrationId)">Reject</button>
-                    }
-                    else if (reg.Status == "Confirmed")
-                    {
-                        <button class="btn btn-sm btn-danger" @onclick="() => Reject(reg.RegistrationId)">Cancel</button>
-                    }
-                    else if (reg.Status == "Cancelled" || reg.Status == "Waitlisted")
-                    {
-                        <button class="btn btn-sm btn-success" @onclick="() => Approve(reg.RegistrationId)">Approve</button>
-                    }
-                </td>
-            </tr>
-        }
-        @if (!FilteredRegistrations.Any())
-        {
-            <tr><td colspan="6" class="text-muted text-center">No registrations found.</td></tr>
-        }
-    </tbody>
-</table>
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Participant</th>
+                    <th>Email</th>
+                    <th>Event</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var reg in FilteredRegistrations)
+                {
+                    <tr>
+                        <td>@reg.Participant?.Name</td>
+                        <td>@reg.Participant?.Email</td>
+                        <td>@reg.Event?.Name</td>
+                        <td>@reg.RegistrationDate.ToString("dd MMM yyyy")</td>
+                        <td><span class="badge bg-@StatusColor(reg.Status)">@reg.Status</span></td>
+                        <td class="text-end">
+                            @if (reg.Status == "Pending")
+                            {
+                                <button class="btn btn-sm btn-success me-1" @onclick="() => Approve(reg.RegistrationId)">Approve</button>
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => Reject(reg.RegistrationId)">Reject</button>
+                            }
+                            else if (reg.Status == "Confirmed")
+                            {
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => Reject(reg.RegistrationId)">Cancel</button>
+                            }
+                            else if (reg.Status == "Cancelled" || reg.Status == "Waitlisted")
+                            {
+                                <button class="btn btn-sm btn-outline-success" @onclick="() => Approve(reg.RegistrationId)">Approve</button>
+                            }
+                        </td>
+                    </tr>
+                }
+                @if (!FilteredRegistrations.Any())
+                {
+                    <tr><td colspan="6" class="text-center text-muted py-4">No registrations found.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
 
 @code {
     [Inject] private SessionService Session { get; set; } = default!;
