@@ -102,8 +102,8 @@ else
         await LoadEvents();
     }
 
-    private void ViewEvent(int id) => Nav.NavigateTo($"/events/{id}");
-    private void EditEvent(int id) => Nav.NavigateTo($"/events/edit/{id}");
+    private void ViewEvent(int id) => Nav.NavigateTo($"/admin/events/{id}");
+    private void EditEvent(int id) => Nav.NavigateTo($"/admin/events/edit/{id}");
 
     private async Task DeleteEvent(int id)
     {

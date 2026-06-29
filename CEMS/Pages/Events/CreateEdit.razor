@@ -22,9 +22,9 @@
             <label class="form-label">Time (HH:MM)</label>
             @* <input type="time" class="form-control" @bind="timeString" /> *@
             <input type="time"
-       class="form-control"
-       value="@timeString"
-       @onchange="OnTimeChanged" />
+                   class="form-control"
+                   value="@timeString"
+                   @onchange="OnTimeChanged" />
         </div>
     </div>
 
@@ -52,7 +52,7 @@
                 <input class="form-check-input" type="checkbox"
                        id="act_@activity.ActivityId"
                        checked="@selectedActivityIds.Contains(activity.ActivityId)"
-                       @onchange="e => ActivityChanged(activity.ActivityId, e)"/>
+                       @onchange="e => ActivityChanged(activity.ActivityId, e)" />
                 <label class="form-check-label" for="act_@activity.ActivityId">
                     @activity.Name (@activity.Type)
                 </label>
@@ -107,17 +107,17 @@
         }
     }
     private void OnTimeChanged(ChangeEventArgs e)
-{
-    timeString = e.Value?.ToString() ?? "09:00";
-}
+    {
+        timeString = e.Value?.ToString() ?? "09:00";
+    }
 
-private void ActivityChanged(int activityId, ChangeEventArgs e)
-{
-    bool isChecked =
-        bool.TryParse(e.Value?.ToString(), out var result) && result;
+    private void ActivityChanged(int activityId, ChangeEventArgs e)
+    {
+        bool isChecked =
+            bool.TryParse(e.Value?.ToString(), out var result) && result;
 
-    ToggleActivity(activityId, isChecked);
-}
+        ToggleActivity(activityId, isChecked);
+    }
 
     private void ToggleActivity(int activityId, bool isChecked)
     {
@@ -152,7 +152,7 @@ private void ActivityChanged(int activityId, ChangeEventArgs e)
             else
                 await EventService.CreateEventAsync(model);
 
-            NavigationManager.NavigateTo("/events");
+            NavigationManager.NavigateTo("/admin/events");
         }
         catch (Exception ex)
         {

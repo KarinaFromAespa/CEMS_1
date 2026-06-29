@@ -20,7 +20,7 @@
         </div>
         <div class="mb-2">
             <label>Phone</label>
-            <input type="tel" class="form-control" @bind="form.Phone" />
+            <input type="tel" class="form-control" @bind="form.Phone" placeholder="+447700123456" />
         </div>
         @if (!string.IsNullOrEmpty(formError))
         {
@@ -185,12 +185,36 @@
         return true;
     }
 
+    private bool IsValidPhone(string ph, out string phError)
+    {
+        phError = "";
+        var digits = ph.Replace(" ", "").Replace("-", "");
+        if (!digits.StartsWith("+"))
+        {
+            phError = "Phone number must start with a country code (e.g. +44).";
+            return false;
+        }
+        var afterPlus = digits.Substring(1);
+        if (!afterPlus.All(char.IsDigit))
+        {
+            phError = "Phone number may only contain digits after the country code prefix.";
+            return false;
+        }
+        if (afterPlus.Length < 11 || afterPlus.Length > 13)
+        {
+            phError = "Phone number must have a country code plus 10 digits (e.g. +447700123456).";
+            return false;
+        }
+        return true;
+    }
+
     private async Task SaveParticipant()
     {
         formError = "";
         if (string.IsNullOrWhiteSpace(form.Name)) { formError = "Name is required."; return; }
         if (string.IsNullOrWhiteSpace(form.Email)) { formError = "Email is required."; return; }
         if (!IsValidEmail(form.Email)) { formError = "Enter a valid email address (e.g. user@example.com)."; return; }
+        if (!string.IsNullOrWhiteSpace(form.Phone) && !IsValidPhone(form.Phone.Trim(), out var phError)) { formError = phError; return; }
 
         try
         {
